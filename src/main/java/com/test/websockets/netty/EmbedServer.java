@@ -29,7 +29,7 @@ public class EmbedServer {
         thread = new Thread(new Runnable() {
             @Override
             public void run() {
-                NioEventLoopGroup boss = new NioEventLoopGroup(1);
+                NioEventLoopGroup boss = new NioEventLoopGroup();
                 NioEventLoopGroup work = new NioEventLoopGroup();
 
                 try {
@@ -62,7 +62,7 @@ public class EmbedServer {
 
                     //绑定端口号，启动服务端
                     ChannelFuture channelFuture = bootstrap.bind().sync();
-                    System.out.println("WebSocketNettServer启动成功");
+                    System.out.println("WebSocketNettServer started");
 
                     //对关闭通道进行监听
                     channelFuture.channel().closeFuture().sync();
