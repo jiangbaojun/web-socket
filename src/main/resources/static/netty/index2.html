@@ -1,0 +1,70 @@
+<html>
+<head>
+    <meta charset="utf-8">
+</head>
+<body>
+<input id="text" type="text"/>
+<button onclick="send()">send</button>
+<div id="message"></div>
+</body>
+
+<script type="text/javascript">
+  var websocket = null;
+  //判断当前浏览器是否支持WebSocket
+  if ('WebSocket' in window) {
+    websocket = new WebSocket("ws://localhost:8081/netty-ws");
+    //websocket默认是传输字符串的，需要改为arraybuffer二进制传输类型
+    //websocket.binaryType = "arraybuffer";
+  }else {
+    alert('当前浏览器 Not support websocket')
+  }
+
+  //连接发生错误的回调方法
+  websocket.onerror = function () {
+    setMessageInnerHTML("WebSocket连接发生错误");
+  };
+
+  //连接成功建立的回调方法
+  websocket.onopen = function () {
+    setMessageInnerHTML("WebSocket连接成功");
+  }
+
+  //接收到消息的回调方法
+  websocket.onmessage = function (event) {
+      //将接收到的二进制数据转为字符串
+      var str = event.data;
+      setMessageInnerHTML(str);
+  }
+
+  //连接关闭的回调方法
+  websocket.onclose = function () {
+    setMessageInnerHTML("WebSocket连接关闭");
+  }
+
+  //监听窗口关闭事件，当窗口关闭时，主动去关闭websocket连接，防止连接还没断开就关闭窗口，server端会抛异常。
+  window.onbeforeunload = function () {
+    closeWebSocket();
+  }
+
+  function setMessageInnerHTML(innerHTML) {
+    document.getElementById('message').innerHTML += innerHTML + '<br/>';
+  }
+
+  //关闭WebSocket连接
+  function closeWebSocket() {
+    websocket.close();
+  }
+
+  //发送消息
+  function send() {
+      var message = document.getElementById('text').value;
+      //将字符串转换为byte数组
+      var bytes = new TextEncoder().encode(message)
+      console.log(bytes)
+      websocket.send(message+"-字符串消息");
+      websocket.send(bytes);
+  }
+
+
+</script>
+</html>
